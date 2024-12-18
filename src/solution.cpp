@@ -12,12 +12,12 @@ int Solution::getMaxEnergyTransmission(Graph &graph) {
 
   int source = -1, sink = -1;
 
-  for (const auto &[id, vertex] : graph.vertices) {
-    if (vertex.isGenerator) {
-      source = id;
+  for (const auto vertex : graph.vertices) {
+    if (vertex.second.isGenerator) {
+      source = vertex.first;
     }
-    if (!vertex.isGenerator && vertex.demand > 0) {
-      sink = id;
+    if (!vertex.second.isGenerator && vertex.second.demand > 0) {
+      sink = vertex.first;
     }
   }
 
@@ -55,9 +55,10 @@ int Solution::getMaxEnergyTransmission(Graph &graph) {
 
 int Solution::getUnmetEnergy(Graph &graph) {
   int unmetEnergy = 0;
-  for (const auto &[id, vertex] : graph.vertices) {
-    if (!vertex.isGenerator) {
-      unmetEnergy += std::max(0, vertex.demand - vertex.receivedEnergy);
+  for (const auto vertex : graph.vertices) {
+    if (!vertex.second.isGenerator) {
+      unmetEnergy +=
+          std::max(0, vertex.second.demand - vertex.second.receivedEnergy);
     }
   }
   return unmetEnergy;
@@ -65,11 +66,11 @@ int Solution::getUnmetEnergy(Graph &graph) {
 
 int Solution::getLostEnergy(Graph &graph) {
   int totalGenerated = 0, totalReceived = 0;
-  for (const auto &[id, vertex] : graph.vertices) {
-    if (vertex.isGenerator) {
-      totalGenerated += vertex.receivedEnergy;
+  for (const auto vertex : graph.vertices) {
+    if (vertex.second.isGenerator) {
+      totalGenerated += vertex.second.receivedEnergy;
     } else {
-      totalReceived += vertex.receivedEnergy;
+      totalReceived += vertex.second.receivedEnergy;
     }
   }
   return totalGenerated - totalReceived;
@@ -116,13 +117,13 @@ bool Solution::bfs(
     int u = q.front();
     q.pop();
 
-    for (const auto &[v, capacity] : residual[u]) {
-      if (!visited[v] && capacity > 0) {
-        q.push(v);
-        parent[v] = u;
-        visited[v] = true;
+    for (const auto res : residual[u]) {
+      if (!visited[res.first] && res.second > 0) {
+        q.push(res.first);
+        parent[res.first] = u;
+        visited[res.first] = true;
 
-        if (v == sink) {
+        if (res.first == sink) {
           return true;
         }
       }

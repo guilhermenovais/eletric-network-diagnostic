@@ -3,7 +3,7 @@
 
 #include "../include/edge.hpp"
 #include "../include/vertex.hpp"
-#include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <vector>
 
@@ -19,7 +19,7 @@ public:
   std::vector<Edge *> findCriticalConnections();
 
 private:
-  std::unordered_map<int, Vertex *> vertices;
+  std::map<int, Vertex *> vertices;
   std::vector<Edge *> edges;
   void sortEdgesByCapacity(std::vector<Edge *> &edges);
   bool dfs(Vertex *current, Vertex *target, std::vector<Edge *> &path,

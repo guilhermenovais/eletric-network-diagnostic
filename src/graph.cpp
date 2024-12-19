@@ -1,6 +1,9 @@
 #include "../include/graph.hpp"
 #include <algorithm>
 #include <climits>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
 
 Graph::~Graph() {
   for (auto edge : edges) {
@@ -30,9 +33,8 @@ int Graph::calculateMaxCapacity() {
                 consumer->receivedEnergy) { // Consumer with unmet demand
           while (true) {
             std::vector<Edge *> path;
-            std::unordered_set<Vertex *> visited;
 
-            if (!dfs(vertex, consumer, path, visited)) {
+            if (!bfs(vertex, consumer, path)) {
               break;
             }
 
@@ -65,24 +67,34 @@ int Graph::calculateMaxCapacity() {
   return totalCapacity;
 }
 
-bool Graph::dfs(Vertex *current, Vertex *target, std::vector<Edge *> &path,
-                std::unordered_set<Vertex *> &visited) {
-  if (current == target) {
-    return true;
-  }
+bool Graph::bfs(Vertex *source, Vertex *target, std::vector<Edge *> &path) {
+  std::unordered_map<Vertex *, Edge *> parent;
+  std::queue<Vertex *> q;
+  std::unordered_set<Vertex *> visited;
 
-  visited.insert(current);
+  q.push(source);
+  visited.insert(source);
 
-  for (Edge *edge : current->getEdges()) {
-    if (edge->capacity > edge->usedCapacity &&
-        visited.find(edge->to) == visited.end()) {
-      path.push_back(edge);
+  while (!q.empty()) {
+    Vertex *current = q.front();
+    q.pop();
 
-      if (dfs(edge->to, target, path, visited)) {
-        return true;
+    for (Edge *edge : current->getEdges()) {
+      if (edge->capacity > edge->usedCapacity &&
+          visited.find(edge->to) == visited.end()) {
+        parent[edge->to] = edge;
+        visited.insert(edge->to);
+        q.push(edge->to);
+
+        if (edge->to == target) {
+          Vertex *v = target;
+          while (v != source) {
+            path.insert(path.begin(), parent[v]);
+            v = parent[v]->from;
+          }
+          return true;
+        }
       }
-
-      path.pop_back();
     }
   }
 

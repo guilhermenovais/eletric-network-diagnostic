@@ -4,7 +4,6 @@
 #include "../include/edge.hpp"
 #include "../include/vertex.hpp"
 #include <map>
-#include <unordered_set>
 #include <vector>
 
 class Graph {
@@ -21,9 +20,9 @@ public:
 private:
   std::map<int, Vertex *> vertices;
   std::vector<Edge *> edges;
+
   void sortEdgesByCapacity(std::vector<Edge *> &edges);
-  bool dfs(Vertex *current, Vertex *target, std::vector<Edge *> &path,
-           std::unordered_set<Vertex *> &visited);
+  bool bfs(Vertex *source, Vertex *target, std::vector<Edge *> &path);
 };
 
 #endif

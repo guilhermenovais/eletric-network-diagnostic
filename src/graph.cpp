@@ -27,15 +27,15 @@ int Graph::calculateUnmetDemand() {
 }
 
 int Graph::calculateLostEnergy() {
-  int energyProduced = 0;
+  int energyCapacity = 0;
   int energyDelivered = 0;
   for (Edge *edge : edges) {
     if (edge->from->type == 0) {
-      energyProduced += edge->usedCapacity;
+      energyCapacity += edge->capacity;
+      energyDelivered += edge->usedCapacity;
     }
-    energyDelivered += edge->usedCapacity;
   }
-  return energyProduced - energyDelivered;
+  return energyCapacity - energyDelivered;
 }
 
 std::vector<Edge *> Graph::findCriticalConnections() {

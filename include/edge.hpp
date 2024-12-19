@@ -1,14 +1,16 @@
 #ifndef EDGE_HPP
 #define EDGE_HPP
 
+class Vertex;
+
 class Edge {
 public:
-  int from, to;
+  Vertex *from;
+  Vertex *to;
   int capacity;
-  int flow;
+  int usedCapacity;
 
-  Edge(int from, int to, int capacity);
-  bool isCritical() const;
+  Edge(Vertex *from, Vertex *to, int capacity);
 };
 
 #endif

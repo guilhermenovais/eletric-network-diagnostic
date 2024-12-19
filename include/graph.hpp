@@ -1,19 +1,25 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
-#include "edge.hpp"
-#include "vertex.hpp"
+#include "../include/edge.hpp"
+#include "../include/vertex.hpp"
 #include <unordered_map>
 #include <vector>
 
 class Graph {
 public:
-  std::unordered_map<int, Vertex> vertices;
-  std::vector<Edge> edges;
-
-  void addVertex(int id, bool isGenerator, int demand = 0);
+  void addVertex(int id, int type);
   void addEdge(int from, int to, int capacity);
-  std::vector<Edge> getOutgoingEdges(int vertexId);
+
+  int calculateMaxCapacity();
+  int calculateUnmetDemand();
+  int calculateLostEnergy();
+  std::vector<Edge *> findCriticalConnections();
+
+private:
+  std::unordered_map<int, Vertex *> vertices;
+  std::vector<Edge *> edges;
+  void sortEdgesByCapacity(std::vector<Edge *> &edges);
 };
 
 #endif

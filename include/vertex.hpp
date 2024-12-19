@@ -1,15 +1,23 @@
 #ifndef VERTEX_HPP
 #define VERTEX_HPP
 
+#include <vector>
+
+class Edge;
+
 class Vertex {
 public:
   int id;
-  bool isGenerator;
-  int demand;
+  int type;
   int receivedEnergy;
 
-  Vertex();
-  Vertex(int id, bool isGenerator, int demand = 0);
+  explicit Vertex(int id, int type);
+
+  void addEdge(Edge *edge);
+  const std::vector<Edge *> &getEdges() const;
+
+private:
+  std::vector<Edge *> edges;
 };
 
 #endif

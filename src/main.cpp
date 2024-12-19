@@ -3,41 +3,25 @@
 #include <iostream>
 
 int main() {
+  int qtdVertices, qtdEdges;
+  std::cin >> qtdVertices >> qtdEdges;
+
   Graph graph;
-  int V, E;
 
-  std::cin >> V >> E;
-
-  for (int i = 0; i < V; ++i) {
-    int id, capacity;
-    std::cin >> id >> capacity;
-    if (capacity == 0) {
-      graph.addVertex(id, true);
-    } else {
-      graph.addVertex(id, false, capacity);
-    }
+  for (int i = 0; i < qtdVertices; ++i) {
+    int id, type;
+    std::cin >> id >> type;
+    graph.addVertex(id, type);
   }
 
-  for (int i = 0; i < E; ++i) {
-    int startVertex, endVertex, capacity;
-    std::cin >> startVertex >> endVertex >> capacity;
-    graph.addEdge(startVertex, endVertex, capacity);
+  for (int i = 0; i < qtdEdges; ++i) {
+    int from, to, capacity;
+    std::cin >> from >> to >> capacity;
+    graph.addEdge(from, to, capacity);
   }
 
   Solution solution;
-
-  int totalEnergy = solution.getMaxEnergyTransmission(graph);
-  int missingEnergy = solution.getUnmetEnergy(graph);
-  int lostEnergy = solution.getLostEnergy(graph);
-  auto criticalConnections = solution.getCriticalConnections(graph);
-
-  std::cout << totalEnergy << "\n";
-  std::cout << missingEnergy << "\n";
-  std::cout << lostEnergy << "\n";
-  std::cout << criticalConnections.size() << "\n";
-  for (const Edge &edge : criticalConnections) {
-    std::cout << edge.from << " " << edge.to << " " << edge.flow << "\n";
-  }
+  solution.run(graph);
 
   return 0;
 }

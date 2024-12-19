@@ -1,6 +1,8 @@
 #include "../include/vertex.hpp"
+#include "../include/edge.hpp"
 
-Vertex::Vertex() : id(0), isGenerator(false), demand(0), receivedEnergy(0) {}
+Vertex::Vertex(int id, int type) : id(id), type(type), receivedEnergy(0) {}
 
-Vertex::Vertex(int id, bool isGenerator, int demand)
-    : id(id), isGenerator(isGenerator), demand(demand), receivedEnergy(0) {}
+void Vertex::addEdge(Edge *edge) { edges.push_back(edge); }
+
+const std::vector<Edge *> &Vertex::getEdges() const { return edges; }

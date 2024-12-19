@@ -1,3 +1,4 @@
+
 #include "../include/graph.hpp"
 #include <algorithm>
 #include <climits>
@@ -25,9 +26,11 @@ void Graph::addEdge(int from, int to, int capacity) {
 int Graph::calculateMaxCapacity() {
   int totalCapacity = 0;
 
-  for (const auto &[id, vertex] : vertices) {
+  for (auto it = vertices.begin(); it != vertices.end(); ++it) {
+    Vertex *vertex = it->second;
     if (vertex->type == 0) { // Generator
-      for (const auto &[cid, consumer] : vertices) {
+      for (auto jt = vertices.begin(); jt != vertices.end(); ++jt) {
+        Vertex *consumer = jt->second;
         if (consumer->type > 0 &&
             consumer->type >
                 consumer->receivedEnergy) { // Consumer with unmet demand
@@ -103,7 +106,8 @@ bool Graph::bfs(Vertex *source, Vertex *target, std::vector<Edge *> &path) {
 
 int Graph::calculateUnmetDemand() {
   int unmetDemand = 0;
-  for (const auto &[id, vertex] : vertices) {
+  for (auto it = vertices.begin(); it != vertices.end(); ++it) {
+    Vertex *vertex = it->second;
     if (vertex->type > 0) {
       unmetDemand += std::max(0, vertex->type - vertex->receivedEnergy);
     }

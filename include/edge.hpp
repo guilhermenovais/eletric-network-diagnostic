@@ -9,8 +9,9 @@ public:
   Vertex *to;
   int capacity;
   int usedCapacity;
+  bool isReverse;
 
-  Edge(Vertex *from, Vertex *to, int capacity);
+  Edge(Vertex *from, Vertex *to, int capacity, bool isReverse);
 };
 
 #endif

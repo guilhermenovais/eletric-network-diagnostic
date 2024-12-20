@@ -16,9 +16,12 @@ Graph::~Graph() {
 void Graph::addVertex(int id, int type) { vertices[id] = new Vertex(id, type); }
 
 void Graph::addEdge(int from, int to, int capacity) {
-  Edge *edge = new Edge(vertices[from], vertices[to], capacity);
+  Edge *edge = new Edge(vertices[from], vertices[to], capacity, false);
   edges.push_back(edge);
   vertices[from]->addEdge(edge);
+  Edge *residualEdge = new Edge(vertices[to], vertices[from], 0, true);
+  edges.push_back(residualEdge);
+  vertices[to]->addEdge(residualEdge);
 }
 
 int Graph::calculateMaxCapacity() {
@@ -69,20 +72,13 @@ int Graph::edmondsKarp(Vertex *source, Vertex *sink) {
       Edge *edge = parentMap[v];
       edge->usedCapacity += pathFlow;
 
-      bool reverseEdgeFound = false;
+      bool isReverse = edge->isReverse;
       for (Edge *reverseEdge : edge->to->getEdges()) {
-        if (reverseEdge->to == edge->from) {
+        if (reverseEdge->to == edge->from &&
+            reverseEdge->isReverse == !isReverse) {
           reverseEdge->usedCapacity -= pathFlow;
-          reverseEdgeFound = true;
           break;
         }
-      }
-
-      if (!reverseEdgeFound) {
-        Edge *reverseEdge = new Edge(edge->to, edge->from, 0);
-        reverseEdge->usedCapacity = -pathFlow;
-        edge->to->addEdge(reverseEdge);
-        edges.push_back(reverseEdge);
       }
     }
 
@@ -151,7 +147,7 @@ int Graph::calculateLostEnergy() {
 std::vector<Edge *> Graph::findCriticalConnections() {
   std::vector<Edge *> criticalEdges;
   for (Edge *edge : edges) {
-    if (edge->usedCapacity == edge->capacity) {
+    if (edge->usedCapacity == edge->capacity && !edge->isReverse) {
       criticalEdges.push_back(edge);
     }
   }

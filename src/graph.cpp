@@ -21,11 +21,6 @@ void Graph::addEdge(int from, int to, int capacity) {
   vertices[from]->addEdge(edge);
 }
 
-Vertex *Graph::getVertex(int id) {
-  auto it = vertices.find(id);
-  return it != vertices.end() ? it->second : nullptr;
-}
-
 int Graph::calculateMaxCapacity() {
   int totalCapacity = 0;
 

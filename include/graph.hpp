@@ -26,7 +26,6 @@ private:
   int edmondsKarp(Vertex *source, Vertex *sink);
   bool bfs(Vertex *source, Vertex *sink,
            std::unordered_map<Vertex *, Edge *> &parentMap);
-  Vertex *getVertex(int id);
 };
 
 #endif

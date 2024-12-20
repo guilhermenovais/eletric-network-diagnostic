@@ -1,10 +1,8 @@
-
 #include "../include/graph.hpp"
 #include <algorithm>
 #include <climits>
 #include <queue>
 #include <unordered_map>
-#include <unordered_set>
 
 Graph::~Graph() {
   for (auto edge : edges) {
@@ -23,84 +21,112 @@ void Graph::addEdge(int from, int to, int capacity) {
   vertices[from]->addEdge(edge);
 }
 
+Vertex *Graph::getVertex(int id) {
+  auto it = vertices.find(id);
+  return it != vertices.end() ? it->second : nullptr;
+}
+
 int Graph::calculateMaxCapacity() {
   int totalCapacity = 0;
 
-  for (auto it = vertices.begin(); it != vertices.end(); ++it) {
-    Vertex *vertex = it->second;
-    if (vertex->type == 0) { // Generator
-      for (auto jt = vertices.begin(); jt != vertices.end(); ++jt) {
-        Vertex *consumer = jt->second;
-        if (consumer->type > 0 &&
-            consumer->type >
-                consumer->receivedEnergy) { // Consumer with unmet demand
-          while (true) {
-            std::vector<Edge *> path;
+  std::vector<Vertex *> generators;
+  std::vector<Vertex *> consumers;
 
-            if (!bfs(vertex, consumer, path)) {
-              break;
-            }
+  for (auto entry : vertices) {
+    Vertex *vertex = entry.second;
+    if (vertex->type == 0) {
+      generators.push_back(vertex);
+    } else if (vertex->type > 0) {
+      consumers.push_back(vertex);
+    }
+  }
 
-            int remainingDemand = consumer->type - consumer->receivedEnergy;
-            int bottleneck = INT_MAX;
-
-            for (Edge *edge : path) {
-              bottleneck =
-                  std::min(bottleneck, edge->capacity - edge->usedCapacity);
-            }
-
-            int flow = std::min(bottleneck, remainingDemand);
-
-            for (Edge *edge : path) {
-              edge->usedCapacity += flow;
-            }
-
-            consumer->receivedEnergy += flow;
-            totalCapacity += flow;
-
-            if (flow == remainingDemand) {
-              break;
-            }
-          }
-        }
-      }
+  for (Vertex *generator : generators) {
+    for (Vertex *consumer : consumers) {
+      int flow = edmondsKarp(generator, consumer);
+      totalCapacity += flow;
     }
   }
 
   return totalCapacity;
 }
 
-bool Graph::bfs(Vertex *source, Vertex *target, std::vector<Edge *> &path) {
-  std::unordered_map<Vertex *, Edge *> parent;
+int Graph::edmondsKarp(Vertex *source, Vertex *sink) {
+  if (sink->type == sink->receivedEnergy)
+    return 0;
+
+  int maxFlow = 0;
+  std::unordered_map<Vertex *, Edge *> parentMap;
+
+  while (bfs(source, sink, parentMap)) {
+    int pathFlow = INT_MAX;
+
+    for (Vertex *v = sink; v != source; v = parentMap[v]->from) {
+      Edge *edge = parentMap[v];
+      pathFlow = std::min(pathFlow, edge->capacity - edge->usedCapacity);
+    }
+
+    pathFlow = std::min(pathFlow, sink->type - sink->receivedEnergy);
+
+    sink->receivedEnergy += pathFlow;
+
+    for (Vertex *v = sink; v != source; v = parentMap[v]->from) {
+      Edge *edge = parentMap[v];
+      edge->usedCapacity += pathFlow;
+
+      bool reverseEdgeFound = false;
+      for (Edge *reverseEdge : edge->to->getEdges()) {
+        if (reverseEdge->to == edge->from) {
+          reverseEdge->usedCapacity -= pathFlow;
+          reverseEdgeFound = true;
+          break;
+        }
+      }
+
+      if (!reverseEdgeFound) {
+        Edge *reverseEdge = new Edge(edge->to, edge->from, 0);
+        reverseEdge->usedCapacity = -pathFlow;
+        edge->to->addEdge(reverseEdge);
+        edges.push_back(reverseEdge);
+      }
+    }
+
+    maxFlow += pathFlow;
+
+    if (sink->type == sink->receivedEnergy)
+      break;
+  }
+
+  return maxFlow;
+}
+
+bool Graph::bfs(Vertex *source, Vertex *sink,
+                std::unordered_map<Vertex *, Edge *> &parentMap) {
   std::queue<Vertex *> q;
-  std::unordered_set<Vertex *> visited;
+  std::unordered_map<Vertex *, bool> visited;
 
   q.push(source);
-  visited.insert(source);
+  visited[source] = true;
+  parentMap.clear();
 
   while (!q.empty()) {
     Vertex *current = q.front();
     q.pop();
 
     for (Edge *edge : current->getEdges()) {
-      if (edge->capacity > edge->usedCapacity &&
-          visited.find(edge->to) == visited.end()) {
-        parent[edge->to] = edge;
-        visited.insert(edge->to);
-        q.push(edge->to);
+      Vertex *neighbor = edge->to;
 
-        if (edge->to == target) {
-          Vertex *v = target;
-          while (v != source) {
-            path.insert(path.begin(), parent[v]);
-            v = parent[v]->from;
-          }
+      if (!visited[neighbor] && edge->capacity > edge->usedCapacity) {
+        parentMap[neighbor] = edge;
+        visited[neighbor] = true;
+
+        if (neighbor == sink) {
           return true;
         }
+        q.push(neighbor);
       }
     }
   }
-
   return false;
 }
 

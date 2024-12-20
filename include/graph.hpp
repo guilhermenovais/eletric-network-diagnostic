@@ -4,6 +4,7 @@
 #include "../include/edge.hpp"
 #include "../include/vertex.hpp"
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 class Graph {
@@ -22,7 +23,10 @@ private:
   std::vector<Edge *> edges;
 
   void sortEdgesByCapacity(std::vector<Edge *> &edges);
-  bool bfs(Vertex *source, Vertex *target, std::vector<Edge *> &path);
+  int edmondsKarp(Vertex *source, Vertex *sink);
+  bool bfs(Vertex *source, Vertex *sink,
+           std::unordered_map<Vertex *, Edge *> &parentMap);
+  Vertex *getVertex(int id);
 };
 
 #endif

@@ -56,3 +56,6 @@ run: all
 test: all
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(EXE) < testcases/inputs/testCase01.txt
 	gdb ./$(EXE)
+
+check: all
+	python check.py
